@@ -1,8 +1,6 @@
 import pandas as pd
 import numpy as np
-from pyfaidx import Fasta
 import torch
-from torch.nn import functional as F
 import argparse
 import vcf as pyvcf
 import tqdm
@@ -658,8 +656,8 @@ if __name__ == '__main__':
                              'outputs/clinvar_annotate_0319.csv')
 
     if target == 'temporary':  # A toy task to test the program
-        annotate_VCF_general('data/input38.vcf',
-                             'data/output38.vcf', input_CSV=False, ref_fasta='hg38')
+        annotate_VCF_general('data/example/input38.vcf',
+                             'data/example/output38.vcf', input_CSV=False, ref_fasta='hg38')
 
     if target == 'site_vis':
         visualize_single_site('chr1', 7745000, '+', 'C', 'T',

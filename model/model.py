@@ -158,12 +158,11 @@ class SpEncoder_4tis(nn.Module):
 class AttnBlock(nn.Module):
     def __init__(self, dim=256, depth=6, causal=False, max_seq_len=8192, reversible=False) -> None:
         super().__init__()
-        bucket_size = 32
+        bucket_size = 64
         axial_position_shape = ((max_seq_len // bucket_size), bucket_size)
         self.pos_emb = AxialPositionalEmbedding(dim, axial_position_shape)
         self.reformer = SinkhornTransformer(
-            dim, depth, heads=16, max_seq_len=max_seq_len, n_local_attn_heads=4,
-            causal=causal, reversible=reversible)
+            dim, depth, heads=8, max_seq_len=max_seq_len, ff_chunks=10, causal=causal, reversible=reversible)
         self.norm = nn.LayerNorm(dim)
 
     def forward(self, x):
@@ -173,7 +172,6 @@ class AttnBlock(nn.Module):
         x = self.norm(x)
         x = torch.transpose(x, 1, 2).contiguous()
         return x
-
 
 class SpTransformer(nn.Module):
     def __init__(self, dim, usage_head=None, context_len=4000, training=False) -> None:

@@ -9,7 +9,7 @@ import argparse
 import logging
 import vcf as pyvcf
 from model.model import SpTransformer
-from model import SpliceAI as re_sp
+from model.SpliceAI import SpliceAI as re_sp
 import tqdm
 
 
@@ -289,7 +289,7 @@ def initialization(ref_fasta='hg19', grch='grch37', use_spliceai=False, context_
     elif ref_fasta == 'hg38':
         db = './data/genome_annotation/gencode.v38.annotation.gtf.gz.db'
         gtf = gffutils.FeatureDB(db)
-        ref_fasta = '/data/genome_annotation/hg38.fa'
+        ref_fasta = './data/genome_annotation/hg38.fa'
     else:
         raise NotImplementedError
     if use_spliceai == 'retrained':
@@ -316,7 +316,9 @@ def initialization(ref_fasta='hg19', grch='grch37', use_spliceai=False, context_
         np.random.seed(seed)
         model = SpTransformer(64, usage_head=11, context_len=context_len)
         save_dict = torch.load(
-            './model/weights/SpTransformer_pytorch.ckpt', map_location=device)
+            '/public/home/shenninggroup/yny/code/Splice-Pytorch/runs/V2Splice_Mix/best.ckpt', map_location=device)
+        # save_dict = torch.load(
+        #     './model/weights/SpTransformer_pytorch.ckpt', map_location=device)
         model.load_state_dict(save_dict["state_dict"])
         annotator = Annotator(ref_fasta, grch, models=[model])
     return annotator, device, gtf
@@ -425,60 +427,6 @@ def filt_clinvar(fname, outputname):  # 弃用
     df_filter.to_csv(outputname, sep='\t')
 
 
-def calc_motif(target_chr, target_pos, ref_base, strand):
-    annotator, _, gtf = initialization(
-        ref_fasta='hg38', grch='grch38', use_spliceai=False)
-    d_range = 80
-    context_len = 4000
-    score_list = []
-    cnt = 0
-    site_pos = 80
-    sequence = annotator.ref_fasta.get_seq(
-        target_chr, target_pos-d_range, target_pos+d_range, rc=False)
-    pred_alt, pred_ref = annotator.calc_one_snp_interval(
-        target_chr, strand, target_pos-d_range, target_pos+d_range, target_pos, sequence[d_range], 'A', context_len=context_len)
-    print(pred_ref[site_pos, :])
-    for i in range(-d_range, d_range+1):
-        tmp = []
-        for base in ['A', 'G', 'C', 'T']:
-            pred_alt, pred_ref = annotator.calc_one_snp_interval(
-                target_chr, strand, target_pos-d_range, target_pos+d_range, target_pos+i, sequence[d_range+i], base, context_len=context_len)
-            score_splice = np.max(
-                np.abs(pred_alt[site_pos, 7] - pred_ref[site_pos, 7]))
-            print(np.where(np.max(pred_ref[:, 1:3], axis=1) > 0.5))
-            tmp.append(score_splice)
-        score_list.append(tmp)
-        cnt += 1
-    score_list = np.array(score_list)
-    import matplotlib.pyplot as plt
-    x = range(score_list.shape[0])
-    scores = []
-    if strand == '+':
-        for pos in range(score_list.shape[0]):
-            print(sequence[pos])
-            print(np.max(score_list[pos, :]))
-            scores.append(
-                [(str(sequence[pos]).upper(), np.max(score_list[pos, :])*2)])
-    if strand == '-':
-        sequence = annotator.ref_fasta.get_seq(
-            target_chr, target_pos-d_range, target_pos+d_range, rc=True)
-        for pos in range(score_list.shape[0]):
-            print(sequence[pos])
-            print(np.max(score_list[pos, :]))
-            scores.append([(str(sequence[score_list.shape[0] - 1 - pos]).upper(),
-                          np.max(score_list[score_list.shape[0]-1-pos, :])*2)])
-    # plt.savefig('outputs/motif/res.png')
-    from pyseqlogo.pyseqlogo import draw_logo, setup_axis
-    plt.rcParams['figure.dpi'] = 300
-    fig = plt.figure(figsize=(80, 5))
-    ax = plt.subplot(1, 1, 1)
-    plt.subplots_adjust(wspace=0.01)
-    draw_logo(scores, yaxis='probability',
-              draw_axis=True, ax=ax, coordinate_type='data')
-    plt.savefig(
-        'outputs/motif/{}_{}_{}.png'.format(target_chr, target_pos, 'kidney'))
-
-
 def create_genome_db(fname):
     def filter(feat):
         if feat.featuretype not in ["gene", "transcript", "exon"]:
@@ -515,5 +463,3 @@ if __name__ == '__main__':
         analysis_exon_inclusion(
             'outputs/exon_inclusion.csv', use_spliceai='retrained')
 
-    if target == 'Motif':
-        calc_motif('chr2', 178547003, 'A', '-')

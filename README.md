@@ -6,13 +6,17 @@ SpliceTransformer(SpTransformer) is a deep learning tool to predict tissue speci
 
 ### Environment
 
-- Python 3.7 or higher
+- Python 3.8 or higher
 - numpy
 - pandas
 - pytorch>=1.10.2
-- pyseqlogo
 - gffutils>=0.11.0
+- tqdm
 - sinkhorn-transformer
+
+(bioconda channel of Conda is recommended for packages below)
+- pyfaidx
+- pyvcf3
 
 ### Genome annotation
 
