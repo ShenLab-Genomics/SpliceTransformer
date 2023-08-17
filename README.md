@@ -1,6 +1,17 @@
 # SpliceTransformer
 
-SpliceTransformer(SpTransformer) is a deep learning tool to predict tissue specific splicing site from pre-mRNA sequence
+The SpliceTransformer (SpTransformer) is a deep learning tool designed to predict tissue-specific splicing sites from pre-mRNA sequences.
+
+A copy of the well-trained model weights has been uploaded to this repository. Please use Git-LFS to retrieve it correctly.
+
+If you are using the Conda package manager, execute `conda install git-lfs` to install the tool.
+
+After installing Git-LFS, use the following command:
+```bash
+git lfs install
+git lfs clone https://github.com/ShenLab-Genomics/SpliceTransformer
+```
+to clone this repository.
 
 ## Requirement
 
