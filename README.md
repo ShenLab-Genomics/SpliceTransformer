@@ -3,11 +3,14 @@
 The SpliceTransformer (SpTransformer) is a deep learning tool designed to predict tissue-specific splicing sites from pre-mRNA sequences.
 
 
-# Retrive the repository
+# Installation
+## 1. Retrive the repository
 
-The model weight is too large to be uploaded to GitHub, we support two ways to retrieve the repository.
+The program is developed in Python and the source code can be run directly.
 
-## 1.Download through Git-LFS
+However, the model weights file is too large to be uploaded to GitHub, we support two ways to retrieve the repository.
+
+### 1.1. Download through Git-LFS
 A copy of the well-trained model weights is managed by Git-LFS.
 
 If you are using the Conda package manager, execute `conda install git-lfs` to install the tool.
@@ -19,7 +22,7 @@ git lfs clone https://github.com/ShenLab-Genomics/SpliceTransformer
 ```
 to clone this repository.
 
-## 2.Download from Google Drive
+### 1.2. (or) Download from Google Drive
 
 Clone the repository from GitHub first, then download the model weights from Google Drive and put them into the `model/weights` folder.
 ```bash
@@ -27,10 +30,20 @@ git clone https://github.com/ShenLab-Genomics/SpliceTransformer.git
 ```
 Download the [model weights](https://drive.google.com/file/d/1u7owrAgX7K1MUiP-6AWnC4T1Jrql2eig/view?usp=drive_link)
 
+## 2. Install dependencies
+Please see the **Software Dependencies** section.
 
 # Requirement
 
-## Environment
+## OS Requirements
+This package is supported for Linux. The package has been tested on the following systems:
+- CentOS 7
+- Red Hat 4.8.5
+
+And it should be compatible with other common Linux systems.
+
+## Software Dependencies
+
 
 - Python 3.8 or higher
 - numpy
@@ -39,12 +52,12 @@ Download the [model weights](https://drive.google.com/file/d/1u7owrAgX7K1MUiP-6A
 - gffutils>=0.11.0
 - tqdm
 - sinkhorn-transformer
-
-(bioconda channel of Conda is recommended for packages below)
 - pyfaidx
 - pyvcf3
 
-## Resources
+We suggest using `Anaconda` and `pypi` to install python packages. **bioconda** channel of Conda is recommended.
+
+## Dataset Requirements
 
 The SpliceTransformer requires a genome assembly file and a genome annotation database file to locate genes and strands.
 
@@ -62,9 +75,9 @@ The default configuration is for hg38. However, other versions of annotation can
 
 ---
 
-# Run model
+# Run software
 
-## Annotate variants
+## 1.Annotate variants
 
 Run `sptransformer.py` to predict mutation effects.
 ```bash
@@ -73,7 +86,7 @@ python sptransformer.py --input data/example/input38.vcf --output data/example/o
 
 >At the first running of the script, a hint message will be printed to guide users to build .db file for the .gtf files.
 
-## Reproduce analysis results
+## 2.Reproduce analysis results
 
 The code snippets for analysis performed in the article is represented in `annotator_pytorch.py` and `annotator_pytorch_2.py`
 
@@ -86,6 +99,11 @@ The [task] should be replaced by task names recorded in the files `annotator_pyt
 
 **Warning**: Some tasks can not run directly because the source data are not included in the repository. Details about how to get the input files are described in corresponding section of paper.
 
-## Custom usage
+## 3.Custom usage
 
 The python class `Annotator` in `sptransformer.py` showed examples for usage of SpTransformer. The code is able to be modified for custom usage.
+
+
+# License
+
+This project is covered under the Apache 2.0 License.
