@@ -35,6 +35,10 @@ Please see the **Software Dependencies** section.
 
 # Requirement
 
+## Hardware Requirements
+
+We recommend run the software on a computer with a GPU. However, the lightweight example data can also be handled with CPU only.
+
 ## OS Requirements
 This package is supported for Linux. The package has been tested on the following systems:
 - CentOS 7
@@ -79,12 +83,14 @@ The default configuration is for hg38. However, other versions of annotation can
 
 ## 1.Annotate variants
 
-Run `sptransformer.py` to predict mutation effects.
+Run `sptransformer.py` to predict mutation effects. The example output should be a `.tsv` table file containing the prediction.
 ```bash
-python sptransformer.py --input data/example/input38.vcf --output data/example/output38.vcf --reference hg38
+python sptransformer.py --input data/example/input38.vcf --output data/example/output38.tsv --reference hg38
 ```
 
 >At the first running of the script, a hint message will be printed to guide users to build .db file for the .gtf files.
+
+>Expected run time for the sample vcf file on a normal desktop computer is no more than 5 minutes.
 
 ## 2.Reproduce analysis results
 
