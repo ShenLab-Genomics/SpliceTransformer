@@ -602,8 +602,6 @@ if __name__ == '__main__':
     parser.add_argument('--reference', type=str, default='hg38')
     parser.add_argument('--vcf', type=bool, default=True,
                         choices=[True, False])
-    parser.add_argument('--protein_coding', type=bool, default=False, choices=[True, False],
-                        help='Only consider about protein coding genes, default: False', action="store_true")
     #
     args = parser.parse_args()
     finput = args.input
