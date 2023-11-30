@@ -366,6 +366,8 @@ def get_genes(gtf: Genome, chrom, pos):
         strand.append(gene.strand)
         # start.append(ts)
         # end.append(te)
+    if len(strand) > 1 and strand[0] == '-' and strand[1] == '+':
+        strand = ['+', '-']
     return strand, start, end
 
 

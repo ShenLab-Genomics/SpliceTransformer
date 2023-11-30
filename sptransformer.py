@@ -487,17 +487,11 @@ class Annotator():
             if self.limit_protein_coding:
                 if gene.biotype != 'protein_coding':
                     continue
-            # name = gene["gene_name"]
-            '''
-            te = 0
-            ts = 2147483647
-            for exon in gtf.children(gene, featuretype="exon"):
-                te = max(te, exon.end)
-                ts = min(ts, exon.start)
-            '''
             strand.append(gene.strand)
             # start.append(ts)
             # end.append(te)
+        if len(strand) > 1 and strand[0] == '-' and strand[1] == '+':
+            strand = ['+', '-']
         return strand, start, end
 
     def query_scores(self, chrom, pos, ref,

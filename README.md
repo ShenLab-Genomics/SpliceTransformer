@@ -81,7 +81,7 @@ The default configuration is for hg38. However, other versions of annotation can
 
 Run `sptransformer.py` to predict mutation effects.
 ```bash
-python sptransformer.py --input data/example/input38.vcf --output data/example/output38.vcf --reference hg38
+python sptransformer.py --input data/example/input38.vcf --output data/example/output38.tsv --reference hg38
 ```
 
 >At the first running of the script, a hint message will be printed to guide users to build .db file for the .gtf files.

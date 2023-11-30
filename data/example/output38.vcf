@@ -1,4 +1,0 @@
-	#CHROM	POS	ID	REF	ALT	score	Adipose Tissue	Muscle	Blood Vessel	Brain	Kidney	Heart	Liver	Lung	Skin	Nerve
-0	1	17022664		G	A	0.01	Not	Not	Not	Not	Not	Not	Not	Not	Not	Not
-1	19	11575248		A	G	0.72	Not	Not	Not	Not	Specific	Not	Not	Not	Not	Not
-2	1	283942		A	G	0.01	Not	Not	Not	Not	Not	Not	Not	Not	Not	Not
