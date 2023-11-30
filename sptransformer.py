@@ -362,7 +362,7 @@ class SpTransformerDriver(ModelDriver):
         # Load model
         model = SpTransformer(64, usage_head=11, context_len=4000)
         save_dict = torch.load(
-            '/home/ningyuan/code/SpTransformer_server/src/SpTransformer/app/model/weights/SpTransformer_pytorch.ckpt',
+            'model/weights/SpTransformer_pytorch.ckpt',
             map_location=torch.device('cpu'))
         model.load_state_dict(save_dict["state_dict"])
         #
@@ -592,13 +592,12 @@ class Annotator():
 
 
 if __name__ == '__main__':
-    #
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('-I', '--input', type=str,
                         default='data/example/input38.vcf')
     parser.add_argument('-O', '--output', type=str,
-                        default='data/example/input38.vcf')
+                        default='data/example/output38.vcf')
     parser.add_argument('--reference', type=str, default='hg38')
     parser.add_argument('--vcf', type=bool, default=True,
                         choices=[True, False])
@@ -606,6 +605,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     finput = args.input
     foutput = args.output
+    print(finput, foutput)
     ref_genome = args.reference
     annotator = Annotator()
     annotator.annotate_variant_table(
