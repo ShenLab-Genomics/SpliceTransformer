@@ -73,7 +73,7 @@ pip install sinkhorn-transformer pyfaidx pyvcf3 pyensembl
 The SpliceTransformer requires a genome assembly file and a genome annotation database file to locate genes and strands.
 
 (1) Download the genome assembly file from ensemble. 
-<https://ftp.ensembl.org/pub/release-110/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz> 
+<https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz> 
 
 The uncompressed file should be placed at `./data/data_package/` and renamed into `hg38.fa`
 
@@ -81,7 +81,7 @@ The uncompressed file should be placed at `./data/data_package/` and renamed int
 <https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_44/gencode.v44.annotation.gtf.gz>
 The file should be placed at `./data/data_package/` and renamed into `gencode.v38.annotation.gtf.gz`
 
-The default configuration is for hg38. However, other versions of annotation can also be used.
+The default configuration is for hg38. However, other versions of annotation can also be used (the fasta files should contain chromosome labels like `chr1` rather than `1`).
 
 
 ---
