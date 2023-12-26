@@ -424,8 +424,12 @@ class Annotator():
                                       gtf_path_or_url=gtf_hg19)
         else:
             print('Warning: gencode grch37 gtf file not found, You can download from https://www.gencodegenes.org/human/release_19.html')
-        ref_fasta = '/home/ningyuan/data/hg19.fa'
-        self.ref_fasta['hg19'] = Fasta(ref_fasta)
+        ref_fasta = 'data/data_package/hg19.fa'
+        try:
+            self.ref_fasta['hg19'] = Fasta(ref_fasta)
+        except Exception as e:
+            print(e)
+            print('hg19 fasta not found')
 
         # load hg38
         gtf_hg38 = 'data/data_package/gencode.v38.annotation.gtf.gz'
@@ -435,8 +439,12 @@ class Annotator():
                                       gtf_path_or_url=gtf_hg38)
         else:
             print('Warning: gencode grch38 gtf file not found, You can download from https://www.gencodegenes.org/human/release_38.html')
-        ref_fasta = '/home/ningyuan/data/hg38.fa'
-        self.ref_fasta['hg38'] = Fasta(ref_fasta)
+        ref_fasta = 'data/data_package/hg38.fa'
+        try:
+            self.ref_fasta['hg38'] = Fasta(ref_fasta)
+        except Exception as e:
+            print(e)
+            print('hg38 fasta not found')
 
         # load model
         self.model = SpTransformerDriver()

@@ -45,7 +45,7 @@ And it should be compatible with other common Linux systems.
 ## Software Dependencies
 
 
-- Python 3.8 or higher
+- Python 3.8
 - numpy
 - pandas
 - pytorch>=1.10.2
@@ -56,6 +56,16 @@ And it should be compatible with other common Linux systems.
 - pyvcf3
 
 We suggest using `Anaconda` and `pypi` to install python packages. **bioconda** channel of Conda is recommended.
+
+Example:
+```
+conda create -n spt-test python==3.8 numpy pandas gffutils tqdm pytorch pytorch==1.10.1 torchvision==0.11.2 torchaudio==0.10.1 -c pytorch -c conda-forge -c bioconda
+
+conda activate spt-test
+
+pip install sinkhorn-transformer pyfaidx pyvcf3 pyensembl
+```
+
 
 ## Dataset Requirements
 
