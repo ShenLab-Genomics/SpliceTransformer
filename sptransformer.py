@@ -584,7 +584,7 @@ class Annotator():
                 mode = 'a'
                 df_output.drop(df_output.index, inplace=True)
                 # cnt = 0
-            limit = 50
+            limit = None
             if limit and (cnt >= limit):
                 break
             pass
