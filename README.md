@@ -54,6 +54,7 @@ And it should be compatible with other common Linux systems.
 - sinkhorn-transformer
 - pyfaidx
 - pyvcf3
+- pyensembl
 
 We suggest using `Anaconda` and `pypi` to install python packages. **bioconda** channel of Conda is recommended.
 
