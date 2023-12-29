@@ -428,7 +428,7 @@ class Annotator():
         try:
             self.ref_fasta['hg19'] = Fasta(ref_fasta)
         except Exception as e:
-            print(e)
+            # print(e)
             print('hg19 fasta not found')
 
         # load hg38
@@ -443,7 +443,7 @@ class Annotator():
         try:
             self.ref_fasta['hg38'] = Fasta(ref_fasta)
         except Exception as e:
-            print(e)
+            # print(e)
             print('hg38 fasta not found')
 
         # load model
@@ -558,11 +558,13 @@ class Annotator():
             ref = record.REF
             id = record.ID
             alt = record.ALT[0]
-            if (ref == '.') or (ref is None):
+            if (ref is None) or (ref == '*') or (ref == '.'):
                 ref = ''
-            if (alt == '.') or (alt is None):
+            if (alt is None) or (alt == '.') or (alt == '*'):
                 alt = ''
-            if (len(str(ref)) != 1) or (len(str(alt)) != 1):
+            # if (len(str(ref)) != 1) or (len(str(alt)) != 1):
+            #     continue
+            if (len(str(ref)) > 100) or (len(str(alt)) > 100):
                 continue
             splice_score, tissue_flag = self.query_scores(chrom, pos, ref,
                                                           alt, ref_genome=ref_genome)
@@ -584,7 +586,7 @@ class Annotator():
                 mode = 'a'
                 df_output.drop(df_output.index, inplace=True)
                 # cnt = 0
-            limit = None
+            limit = False
             if limit and (cnt >= limit):
                 break
             pass
