@@ -9,6 +9,7 @@ import argparse
 import logging
 import vcf as pyvcf
 from model.model import SpTransformer
+from pyensembl import Genome
 from model.SpliceAI import SpliceAI as re_sp
 import tqdm
 
@@ -283,15 +284,20 @@ def initialization(ref_fasta='hg19', grch='grch37', use_spliceai=False, context_
         device = torch.device("cpu")
     # ref
     if ref_fasta == 'hg19':
-        db = './data/genome_annotation/gencode.v37.annotation.gtf.gz.db'
+        db = './data/data_package/gencode.v19.annotation.gtf.db'
+        # db = './data/genome_annotation/gencode.v37.annotation.gtf.gz.db'
         gtf = gffutils.FeatureDB(db)
-        ref_fasta = './data/genome_annotation/hg19.fa'
+        ref_fasta = './data/data_package/hg38.fa'
     elif ref_fasta == 'hg38':
-        db = './data/genome_annotation/gencode.v38.annotation.gtf.gz.db'
-        gtf = gffutils.FeatureDB(db)
-        ref_fasta = './data/genome_annotation/hg38.fa'
+        db = './data/data_package/gencode.v38.annotation.gtf.db'
+        # gtf = gffutils.FeatureDB(db)
+        gtf = Genome(reference_name='hg38',
+                     annotation_name='gencode.v38',
+                     gtf_path_or_url=db)
+        ref_fasta = './data/data_package/hg38.fa'
     else:
         raise NotImplementedError
+
     if use_spliceai == 'retrained':
         seed = 0
         torch.manual_seed(seed)
@@ -315,10 +321,10 @@ def initialization(ref_fasta='hg19', grch='grch37', use_spliceai=False, context_
         torch.cuda.manual_seed_all(seed)
         np.random.seed(seed)
         model = SpTransformer(64, usage_head=11, context_len=context_len)
-        save_dict = torch.load(
-            '/public/home/shenninggroup/yny/code/Splice-Pytorch/runs/V2Splice_Mix/best.ckpt', map_location=device)
         # save_dict = torch.load(
-        #     './model/weights/SpTransformer_pytorch.ckpt', map_location=device)
+        #     '/public/home/shenninggroup/yny/code/Splice-Pytorch/runs/V2Splice_Mix/best.ckpt', map_location=device)
+        save_dict = torch.load(
+            './model/weights/SpTransformer_pytorch.ckpt', map_location=device)
         model.load_state_dict(save_dict["state_dict"])
         annotator = Annotator(ref_fasta, grch, models=[model])
     return annotator, device, gtf
@@ -341,6 +347,31 @@ def get_gene(gene_db, chr, pos, target_name=None):
     return (None, None, None)
 
 
+def get_genes(gtf: Genome, chrom, pos):
+    # lookup gene and strands from gtf database
+    # genes = gtf.region((chrom, pos, pos), featuretype="gene")
+    genes = gtf.genes_at_locus(chrom, int(pos))
+    strand = []
+    start = []
+    end = []
+    # get strand and start/end position of gene
+    for gene in genes:
+        '''
+            te = 0
+            ts = 2147483647
+            for exon in gtf.children(gene, featuretype="exon"):
+                te = max(te, exon.end)
+                ts = min(ts, exon.start)
+            '''
+        strand.append(gene.strand)
+        # start.append(ts)
+        # end.append(te)
+    if len(strand) > 1 and strand[0] == '-' and strand[1] == '+':
+        strand = ['+', '-']
+    return strand, start, end
+
+
+'''
 def get_genes(gene_db, chr, pos):
     genes = gene_db.region((chr, pos, pos), featuretype="gene")
     strand = []
@@ -360,6 +391,7 @@ def get_genes(gene_db, chr, pos):
         end.append(te)
         # return (strand, start, end)
     return strand, start, end
+'''
 
 
 def analysis_exon_inclusion(fname, use_spliceai=False):
@@ -462,4 +494,3 @@ if __name__ == '__main__':
     if target == 'EI_2':  # retrained spliceai
         analysis_exon_inclusion(
             'outputs/exon_inclusion.csv', use_spliceai='retrained')
-

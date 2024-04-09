@@ -49,7 +49,7 @@ And it should be compatible with other common Linux systems.
 ## Software Dependencies
 
 
-- Python 3.8 or higher
+- Python 3.8
 - numpy
 - pandas
 - pytorch>=1.10.2
@@ -58,15 +58,26 @@ And it should be compatible with other common Linux systems.
 - sinkhorn-transformer
 - pyfaidx
 - pyvcf3
+- pyensembl
 
 We suggest using `Anaconda` and `pypi` to install python packages. **bioconda** channel of Conda is recommended.
+
+Example:
+```
+conda create -n spt-test python==3.8 numpy pandas gffutils tqdm pytorch pytorch==1.10.1 torchvision==0.11.2 torchaudio==0.10.1 -c pytorch -c conda-forge -c bioconda
+
+conda activate spt-test
+
+pip install sinkhorn-transformer pyfaidx pyvcf3 pyensembl
+```
+
 
 ## Dataset Requirements
 
 The SpliceTransformer requires a genome assembly file and a genome annotation database file to locate genes and strands.
 
 (1) Download the genome assembly file from ensemble. 
-<https://ftp.ensembl.org/pub/release-110/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz> 
+<https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz> 
 
 The uncompressed file should be placed at `./data/data_package/` and renamed into `hg38.fa`
 
@@ -74,7 +85,7 @@ The uncompressed file should be placed at `./data/data_package/` and renamed int
 <https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_44/gencode.v44.annotation.gtf.gz>
 The file should be placed at `./data/data_package/` and renamed into `gencode.v38.annotation.gtf.gz`
 
-The default configuration is for hg38. However, other versions of annotation can also be used.
+The default configuration is for hg38. However, other versions of annotation can also be used (the fasta files should contain chromosome labels like `chr1` rather than `1`).
 
 
 ---

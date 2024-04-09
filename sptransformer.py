@@ -362,7 +362,7 @@ class SpTransformerDriver(ModelDriver):
         # Load model
         model = SpTransformer(64, usage_head=11, context_len=4000)
         save_dict = torch.load(
-            '/home/ningyuan/code/SpTransformer_server/src/SpTransformer/app/model/weights/SpTransformer_pytorch.ckpt',
+            'model/weights/SpTransformer_pytorch.ckpt',
             map_location=torch.device('cpu'))
         model.load_state_dict(save_dict["state_dict"])
         #
@@ -424,8 +424,12 @@ class Annotator():
                                       gtf_path_or_url=gtf_hg19)
         else:
             print('Warning: gencode grch37 gtf file not found, You can download from https://www.gencodegenes.org/human/release_19.html')
-        ref_fasta = '/home/ningyuan/data/hg19.fa'
-        self.ref_fasta['hg19'] = Fasta(ref_fasta)
+        ref_fasta = 'data/data_package/hg19.fa'
+        try:
+            self.ref_fasta['hg19'] = Fasta(ref_fasta)
+        except Exception as e:
+            # print(e)
+            print('hg19 fasta not found')
 
         # load hg38
         gtf_hg38 = 'data/data_package/gencode.v38.annotation.gtf.gz'
@@ -435,8 +439,12 @@ class Annotator():
                                       gtf_path_or_url=gtf_hg38)
         else:
             print('Warning: gencode grch38 gtf file not found, You can download from https://www.gencodegenes.org/human/release_38.html')
-        ref_fasta = '/home/ningyuan/data/hg38.fa'
-        self.ref_fasta['hg38'] = Fasta(ref_fasta)
+        ref_fasta = 'data/data_package/hg38.fa'
+        try:
+            self.ref_fasta['hg38'] = Fasta(ref_fasta)
+        except Exception as e:
+            # print(e)
+            print('hg38 fasta not found')
 
         # load model
         self.model = SpTransformerDriver()
@@ -487,17 +495,11 @@ class Annotator():
             if self.limit_protein_coding:
                 if gene.biotype != 'protein_coding':
                     continue
-            # name = gene["gene_name"]
-            '''
-            te = 0
-            ts = 2147483647
-            for exon in gtf.children(gene, featuretype="exon"):
-                te = max(te, exon.end)
-                ts = min(ts, exon.start)
-            '''
             strand.append(gene.strand)
             # start.append(ts)
             # end.append(te)
+        if len(strand) > 1 and strand[0] == '-' and strand[1] == '+':
+            strand = ['+', '-']
         return strand, start, end
 
     def query_scores(self, chrom, pos, ref,
@@ -556,11 +558,13 @@ class Annotator():
             ref = record.REF
             id = record.ID
             alt = record.ALT[0]
-            if (ref == '.') or (ref is None):
+            if (ref is None) or (ref == '*') or (ref == '.'):
                 ref = ''
-            if (alt == '.') or (alt is None):
+            if (alt is None) or (alt == '.') or (alt == '*'):
                 alt = ''
-            if (len(str(ref)) != 1) or (len(str(alt)) != 1):
+            # if (len(str(ref)) != 1) or (len(str(alt)) != 1):
+            #     continue
+            if (len(str(ref)) > 100) or (len(str(alt)) > 100):
                 continue
             splice_score, tissue_flag = self.query_scores(chrom, pos, ref,
                                                           alt, ref_genome=ref_genome)
@@ -582,7 +586,7 @@ class Annotator():
                 mode = 'a'
                 df_output.drop(df_output.index, inplace=True)
                 # cnt = 0
-            limit = 50
+            limit = False
             if limit and (cnt >= limit):
                 break
             pass
@@ -592,22 +596,20 @@ class Annotator():
 
 
 if __name__ == '__main__':
-    #
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('-I', '--input', type=str,
                         default='data/example/input38.vcf')
     parser.add_argument('-O', '--output', type=str,
-                        default='data/example/input38.vcf')
+                        default='data/example/output38.vcf')
     parser.add_argument('--reference', type=str, default='hg38')
     parser.add_argument('--vcf', type=bool, default=True,
                         choices=[True, False])
-    parser.add_argument('--protein_coding', type=bool, default=False, choices=[True, False],
-                        help='Only consider about protein coding genes, default: False', action="store_true")
     #
     args = parser.parse_args()
     finput = args.input
     foutput = args.output
+    print(finput, foutput)
     ref_genome = args.reference
     annotator = Annotator()
     annotator.annotate_variant_table(
