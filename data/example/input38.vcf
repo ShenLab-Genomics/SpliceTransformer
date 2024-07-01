@@ -26,6 +26,9 @@
 ##contig=<ID=X,length=156040895>
 ##contig=<ID=Y,length=57227415>
 #CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
-1	17022664	.	G	A	.	.	.
+1	16031874	.	G	A	.	.	.
+19	11575248	.	A	G	.	.	.
+19	11575248	.	A	G	.	.	.
+19	11575248	.	A	G	.	.	.
 19	11575248	.	A	G	.	.	.
 1	926014	.	G	A	.	.	.

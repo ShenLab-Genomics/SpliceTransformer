@@ -1,0 +1,7 @@
+,#CHROM,POS,ID,REF,ALT,score,Adipose Tissue,Blood,Blood Vessel,Brain,Colon,Heart,Kidney,Liver,Lung,Muscle,Nerve,Small Intestine,Skin,Spleen,Stomach
+0,1,16031874,,G,A,0.97,N,N,N,N,N,N,Y,N,Y,N,N,Y,N,N,Y
+1,19,11575248,,A,G,0.91,N,N,N,N,N,N,N,N,N,N,N,N,N,Y,N
+2,19,11575248,,A,G,0.91,N,N,N,N,N,N,N,N,N,N,N,N,N,Y,N
+3,19,11575248,,A,G,0.91,N,N,N,N,N,N,N,N,N,N,N,N,N,Y,N
+4,19,11575248,,A,G,0.91,N,N,N,N,N,N,N,N,N,N,N,N,N,Y,N
+5,1,926014,,G,A,0.94,N,N,N,Y,Y,N,N,N,N,N,N,N,N,N,N

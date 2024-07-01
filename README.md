@@ -68,7 +68,7 @@ The uncompressed file should be placed at `./data/data_package/` and renamed int
 
 (2) Download the genome annotation file from gencode.
 <https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_44/gencode.v44.annotation.gtf.gz>
-The file should be placed at `./data/data_package/` and renamed into `gencode.v38.annotation.gtf.gz`
+The file should be placed at `./data/data_package/` and renamed into `hg38.annotation.gtf.gz`
 
 The default configuration is for hg38. However, other versions of annotation can also be used.
 
@@ -88,20 +88,49 @@ python sptransformer.py --input data/example/input38.vcf --output data/example/o
 
 ## 2.Reproduce analysis results
 
-The code snippets for analysis performed in the article is represented in `annotator_pytorch.py` and `annotator_pytorch_2.py`
+The code snippets for analysis performed in the article is represented in `tasks_annotate_mutations.py`.
 
 ```bash
-python annotator_pytorch.py [task]
-python annotator_pytorch_2.py [task]
+python tasks_annotate_mutations.py [task]
 ```
 
-The [task] should be replaced by task names recorded in the files `annotator_pytorch_2.py` or `annotator_pytorch.py`. The path of input files should be updated in the code.
+
+The [task] should be replaced by task names recorded in the file. The path of input files should be updated in the code.
+
+> The code snippets for analysis performed during earlier revision processes is represented in `old_annotator_pytorch.py` and `old_annotator_pytorch_2.py`
 
 **Warning**: Some tasks can not run directly because the source data are not included in the repository. Details about how to get the input files are described in corresponding section of paper.
 
 ## 3.Custom usage
 
+### Variants annotation
 The python class `Annotator` in `sptransformer.py` showed examples for usage of SpTransformer. The code is able to be modified for custom usage.
+
+Run this command to generate example outputs as `data/example/output38.csv`:
+```bash
+python sptransformer.py
+```
+
+Detailed options：
+```bash
+python sptransformer.py -I input_file -O output_file --reference hg38 --vcf True --raw_score False
+```
+input_file: .vcf or .csv containing variants, e.g. `data/example/input38.vcf`
+output_file:  e.g. `data/example/output38.csv`
+reference: hg38 or hg19
+vcf: Set it to False if the input file is a .csv file. The input .csv file should contains at lease 4 columns:"CHROM POS REF ALT"
+raw_score:
+    - True: output raw Δtissue usage scores
+    - False output tissue specificity prediction. 95% threshold (described in the article) was used.
+
+**Note**: We have observed that the model's output may exhibit minor discrepancies across different GPU hardware. There is a small probability that the predicted results for individual mutations may be inconsistent across devices, but the model's statistical performance on large-scale datasets remains unaffected.
+
+### Other application
+The file `custom_usage.py` showed an example for getting raw outputs of SpTransformer model.
+
+```python
+python custom_usage.py
+```
 
 
 # License

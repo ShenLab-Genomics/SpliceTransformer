@@ -4,7 +4,7 @@ import torch
 import argparse
 import vcf as pyvcf
 import tqdm
-from annotator_pytorch import Annotator, get_gene, get_genes, initialization
+from old_annotator_pytorch import Annotator, get_gene, get_genes, initialization
 
 
 def visualize_snp(_chr, _snp_pos, _strand, _ref, _alt, _mutation_result='', use_spliceai=False, save_folder=None):

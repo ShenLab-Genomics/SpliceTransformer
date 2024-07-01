@@ -89,7 +89,6 @@ class ModelDriver:
 
     def post_decorate(self, inputs):
         """
-        修饰模型输出。例如使用softmax激活函数处理。
         """
         raise NotImplementedError
 
@@ -249,7 +248,6 @@ class SNPInterval(SNP):
 
     def align_score(self, ref_fasta: Fasta, ref_score, alt_score):
         """
-        如果Ref和Alt长度不同，在计算后它们的分数Shape也不同，这里添加一步手动对齐
 
         Parameters
         ---
@@ -290,8 +288,7 @@ class SNPInterval(SNP):
 
     def align_sequence(self, ref_fasta: Fasta):
         """
-        如果Ref和Alt长度不同，在计算后它们的分数Shape也不同，这里添加一步手动对齐。
-        返回对齐后的RNA序列，将长度改变的地方用‘N’来标记
+        Solve the misalignment of reference and alternative sequence that have different length.
 
         Parameters
         ---
@@ -581,7 +578,6 @@ class SpTransformerDriver(ModelDriver):
 
 
 if __name__ == '__main__':
-    ref_fasta = '/home/ningyuan/data/hg38.fa'
     annotator = SpTransformerDriver('hg19')
     TASK = 1
     if TASK == 0:

@@ -161,76 +161,153 @@ class AttnBlock(nn.Module):
         bucket_size = 64
         axial_position_shape = ((max_seq_len // bucket_size), bucket_size)
         self.pos_emb = AxialPositionalEmbedding(dim, axial_position_shape)
-        self.reformer = SinkhornTransformer(
-            dim, depth, heads=8, max_seq_len=max_seq_len, ff_chunks=10, causal=causal, reversible=reversible)
+        # self.emb_dropout = nn.Dropout(0.05)
+        self.attn = SinkhornTransformer(
+            dim, depth,
+            heads=8,
+            n_local_attn_heads=2,
+            max_seq_len=max_seq_len,
+            attn_layer_dropout=0.1,
+            layer_dropout=0.1,
+            ff_dropout=0.1,
+            ff_chunks=10, causal=causal, reversible=reversible, non_permutative=True)
         self.norm = nn.LayerNorm(dim)
 
     def forward(self, x):
         x = torch.transpose(x, 1, 2).contiguous()
         x = x + self.pos_emb(x)
-        x = self.reformer(x)
+        # x = self.emb_dropout(x)
+        x = self.attn(x)
         x = self.norm(x)
         x = torch.transpose(x, 1, 2).contiguous()
         return x
 
+
+class SpEncoder_L(nn.Module):
+    def __init__(self, L, tissue_cnt=15, context_len=4000):
+        super(SpEncoder_L, self).__init__()
+        self.W = np.asarray([11, 11, 11, 11, 11, 11, 11, 11,
+                             21, 21, 21, 21, 21, 21, 21, 21])
+        self.AR = np.asarray([1, 1, 1, 1, 4, 4, 4, 4,
+                              10, 10, 10, 10, 20, 20, 20, 20])
+        self.n_chans = L
+        self.conv1 = nn.Conv1d(4, L, 1)
+        self.skip = nn.Conv1d(L, L, 1)
+        self.resblocks, self.convs = nn.ModuleList(), nn.ModuleList()
+        for i in range(len(self.W)):
+            self.resblocks.append(ResBlock(L, self.W[i], self.AR[i]))
+            if (((i + 1) % 4 == 0) or ((i + 1) == len(self.W))):
+                self.convs.append(nn.Conv1d(L, L, 1))
+        self.splice_output = nn.Conv1d(L, 3, 1)
+        self.tissue_output = nn.Conv1d(L, tissue_cnt, 1)
+        self.context_len = context_len
+
+    def forward(self, x, feature=False):
+        x = x[:, 0:4, :]
+        conv = self.conv1(x)
+        skip = self.skip(conv)
+        j = 0
+        for i in range(len(self.W)):
+            conv = self.resblocks[i](conv)  # important
+            if (((i + 1) % 4 == 0) or ((i + 1) == len(self.W))):
+                dense = self.convs[j](conv)
+                j += 1
+                skip = skip + dense
+        if feature:
+            return skip
+        skip = F.pad(skip, (-self.context_len, -self.context_len))
+        out_splice = self.splice_output(skip)
+        out_usage = self.tissue_output(skip)
+        return torch.concat([out_splice, out_usage], dim=1)
+
+
+class SpEncoder2_L(nn.Module):
+    def __init__(self, L, tissue_cnt=4, context_len=4000):
+        super(SpEncoder2_L, self).__init__()
+        #
+        # convolution window size in residual units
+        self.W = np.asarray([11, 11, 11, 11, 11, 11, 11, 11,
+                             21, 21, 21, 21, 21, 21, 21, 21])
+        # atrous rate in residual units
+        self.AR = np.asarray([1, 1, 1, 1, 4, 4, 4, 4,
+                              10, 10, 10, 10, 20, 20, 20, 20])
+        #
+        self.n_chans = L
+        self.conv1 = nn.Conv1d(4, L, 1)
+        self.skip = nn.Conv1d(L, L, 1)
+        self.resblocks, self.convs = nn.ModuleList(), nn.ModuleList()
+        for i in range(len(self.W)):
+            self.resblocks.append(ResBlock(L, self.W[i], self.AR[i]))
+            if (((i + 1) % 4 == 0) or ((i + 1) == len(self.W))):
+                self.convs.append(nn.Conv1d(L, L, 1))
+        self.context_len = context_len
+
+    def forward(self, x, feature=False):
+        x = x[:, 0:4, :]
+        conv = self.conv1(x)
+        skip = self.skip(conv)
+        j = 0
+        for i in range(len(self.W)):
+            conv = self.resblocks[i](conv)  # important
+            if (((i + 1) % 4 == 0) or ((i + 1) == len(self.W))):
+                dense = self.convs[j](conv)
+                j += 1
+                skip = skip + dense
+        if feature:
+            return skip
+        skip = F.pad(skip, (-self.context_len, -self.context_len))
+        out = [
+            F.softmax(self.conv_last0(skip), dim=1),
+            torch.sigmoid(self.conv_last1(skip)),
+        ]
+        return torch.cat(out, 1)
+
+
 class SpTransformer(nn.Module):
-    def __init__(self, dim, usage_head=None, context_len=4000, training=False) -> None:
+    def __init__(self, dim=32, context_len=4000, tissue_num=15, max_seq_len=8192, attn_depth=6, training=False) -> None:
         super().__init__()
         self.context_len = context_len
-        # self.pretrainL = 64+64
-        self.pretrainL = 128+64
-        self.pretrain = self.load_pretrain(training)  # 64 dim
+        self.encoderL = 128 + 64
+        self.tissue_num = tissue_num
+        self.encoder = self.load_pretrain(training)
         self.conv1 = nn.Sequential(
             nn.Conv1d(4, dim, 1),
             nn.Conv1d(dim, dim, 1),
         )
-        self.conv2 = nn.Conv1d(dim+self.pretrainL, dim*4, 1)
+        self.conv2 = nn.Conv1d(dim+self.encoderL, dim*2, 1)
         #
-        self.max_seq_len = 8192
+        self.max_seq_len = max_seq_len
         self.attn = AttnBlock(
-            dim*4, depth=6, max_seq_len=self.max_seq_len, causal=False, reversible=True)
-        self.mlp = []
-        self.mlp.append(nn.Conv1d(dim*4, dim, 1))
-        self.mlp.append(ResBlock(dim, 1, 1))
-        self.mlp.append(nn.Conv1d(dim, 3, 1))
-        self.mlp = nn.Sequential(*self.mlp)
-        # usage head
-        self.usage_blocks = []
-        self.usage_blocks.append(nn.Conv1d(dim*4, dim*4, 1))
-        for i in range(0, 2):
-            self.usage_blocks.append(ResBlock(
-                dim*4, 11, 2**i))
-        self.usage_blocks = nn.ModuleList(self.usage_blocks)
-        self.last2 = nn.Conv1d(dim*4, usage_head, 1)
+            dim*2, depth=attn_depth, max_seq_len=self.max_seq_len)
+        self.splice = nn.Conv1d(dim*2, 3, 1)
+        self.usage = nn.Conv1d(dim*2, tissue_num, 1)
 
-    def load_pretrain(self, training):
-        ##
-        L = 128
-        ##
-        model1 = SpEncoder(L, tissue_cnt=11)
+    def load_pretrain(self, training=False):
+        model1 = SpEncoder_L(128, tissue_cnt=self.tissue_num,
+                             context_len=self.context_len)
+        model2 = SpEncoder2_L(64, tissue_cnt=self.tissue_num,
+                              context_len=self.context_len)
         if training:
-            WEIGHTS = '/public/home/shenninggroup/yny/code/Splice-Pytorch/runs/V2Splice_stage1/best.ckpt'
+            print('Load previous model SpEncoder1')
+            WEIGHTS = '/public/home/shenninggroup/yny/code/CellSplice/runs/T-EncoderL1-1000-128_3/best.ckpt'
             save_dict = torch.load(
                 WEIGHTS, map_location=torch.device('cpu'))
             model1.load_state_dict(save_dict["state_dict"], strict=True)
-        L = 64
-        model2 = SpEncoder_4tis(L, tissue_cnt=11)
-        if training:
+            print('Load previous model SpEncoder2')
             WEIGHTS = '/public/home/shenninggroup/yny/code/Splice-Pytorch/model/stage1.ckpt'
             model2.load_state_dict(torch.load(
-                WEIGHTS, map_location=torch.device('cpu')), strict=True)
+                WEIGHTS, map_location=torch.device('cpu')), strict=False)
+            print('Done')
         return nn.ModuleList([model1, model2])
 
-    def forward(self, x, use_usage_head=True):
+    def forward(self, x):
         target_output_len = x.size(2) - 2 * self.context_len
         target_mid_len = self.max_seq_len
         odd_fix = x.size(2) & 1
         #
         with torch.no_grad():
-            feat1 = []
-            for i in range(len(self.pretrain)):
-                feat1.append(self.pretrain[i].forward_feature(x))
-            feat1 = torch.concat(feat1, dim=1)
+            feat1 = [self.encoder[i](x, feature=True) for i in [0, 1]]
+        feat1 = torch.concat(feat1, dim=1)
         #
         feat2 = self.conv1(x)
         # clip 1
@@ -243,19 +320,11 @@ class SpTransformer(nn.Module):
         emb = torch.concat([feat1, feat2], dim=1)
         emb = self.conv2(emb)
         attn = self.attn(emb)
-        splice_out = self.mlp(attn)
-        if use_usage_head == False:
-            out = splice_out
-        else:
-            usage_out = self.usage_blocks[0](attn)
-            for i in range(1, len(self.usage_blocks)):
-                usage_out = usage_out + self.usage_blocks[i](usage_out)
 
-            usage_out = self.last2(usage_out)
-            usage_out = usage_out * \
-                (-torch.softmax(splice_out, dim=1)
-                 [:, 0, :] + 1).view(-1, 1, usage_out.size(2))
-            out = torch.concat([splice_out, usage_out], dim=1)
+        splice_out = self.splice(attn)
+        usage_out = self.usage(attn)
+
+        out = torch.concat([splice_out, usage_out], dim=1)
 
         seq_len = out.size(2)
         out = F.pad(out, (-(seq_len-target_output_len) //
