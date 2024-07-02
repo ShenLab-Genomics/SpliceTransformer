@@ -132,13 +132,17 @@ Detailed options：
 ```bash
 python sptransformer.py -I input_file -O output_file --reference hg38 --vcf True --raw_score False
 ```
-input_file: .vcf or .csv containing variants, e.g. `data/example/input38.vcf`
-output_file:  e.g. `data/example/output38.csv`
-reference: hg38 or hg19
-vcf: Set it to False if the input file is a .csv file. The input .csv file should contains at lease 4 columns:"CHROM POS REF ALT"
+input_file: A .vcf or .csv file containing variants, e.g. `data/example/input38.vcf`
+
+output_file: The output file, e.g. `data/example/output38.csv`
+
+reference: The reference genome, either `hg38` or `hg19`
+
+vcf: Set this to False if the input file is a .csv file. The input .csv file should contain at least 4 columns: "CHROM POS REF ALT"
+
 raw_score:
-    - True: output raw Δtissue usage scores
-    - False output tissue specificity prediction. 95% threshold (described in the article) was used.
+    - True: Output raw Δtissue usage scores
+    - False: Output tissue specificity prediction. The 95% threshold (as described in the article) is used.
 
 **Note**: We have observed that the model's output may exhibit minor discrepancies across different GPU hardware. There is a small probability that the predicted results for individual mutations may be inconsistent across devices, but the model's statistical performance on large-scale datasets remains unaffected.
 
