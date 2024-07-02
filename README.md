@@ -62,7 +62,7 @@ We suggest using `Anaconda` and `pypi` to install python packages. **bioconda** 
 The SpliceTransformer requires a genome assembly file and a genome annotation database file to locate genes and strands.
 
 (1) Download the genome assembly file from ensemble. 
-<https://ftp.ensembl.org/pub/release-110/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz> 
+<https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz> 
 
 The uncompressed file should be placed at `./data/data_package/` and renamed into `hg38.fa`
 
