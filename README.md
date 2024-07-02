@@ -35,6 +35,10 @@ Please see the **Software Dependencies** section.
 
 # Requirement
 
+## Hardware Requirements
+
+We recommend run the software on a computer with a GPU. However, the lightweight example data can also be handled with CPU only.
+
 ## OS Requirements
 This package is supported for Linux. The package has been tested on the following systems:
 - CentOS 7
@@ -45,7 +49,7 @@ And it should be compatible with other common Linux systems.
 ## Software Dependencies
 
 
-- Python 3.8 or higher
+- Python 3.8
 - numpy
 - pandas
 - pytorch>=1.10.2
@@ -54,8 +58,19 @@ And it should be compatible with other common Linux systems.
 - sinkhorn-transformer
 - pyfaidx
 - pyvcf3
+- pyensembl
 
 We suggest using `Anaconda` and `pypi` to install python packages. **bioconda** channel of Conda is recommended.
+
+Example:
+```
+conda create -n spt-test python==3.8 numpy pandas gffutils tqdm pytorch pytorch==1.10.1 torchvision==0.11.2 torchaudio==0.10.1 -c pytorch -c conda-forge -c bioconda
+
+conda activate spt-test
+
+pip install sinkhorn-transformer pyfaidx pyvcf3 pyensembl
+```
+
 
 ## Dataset Requirements
 
@@ -70,7 +85,7 @@ The uncompressed file should be placed at `./data/data_package/` and renamed int
 <https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_44/gencode.v44.annotation.gtf.gz>
 The file should be placed at `./data/data_package/` and renamed into `hg38.annotation.gtf.gz`
 
-The default configuration is for hg38. However, other versions of annotation can also be used.
+The default configuration is for hg38. However, other versions of annotation can also be used (the fasta files should contain chromosome labels like `chr1` rather than `1`).
 
 
 ---
@@ -79,12 +94,14 @@ The default configuration is for hg38. However, other versions of annotation can
 
 ## 1.Annotate variants
 
-Run `sptransformer.py` to predict mutation effects.
+Run `sptransformer.py` to predict mutation effects. The example output should be a `.tsv` table file containing the prediction.
 ```bash
 python sptransformer.py --input data/example/input38.vcf --output data/example/output38.tsv --reference hg38
 ```
 
 >At the first running of the script, a hint message will be printed to guide users to build .db file for the .gtf files.
+
+>Expected run time for the sample vcf file on a normal desktop computer is no more than 5 minutes.
 
 ## 2.Reproduce analysis results
 
