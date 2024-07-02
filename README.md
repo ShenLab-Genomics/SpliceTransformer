@@ -28,7 +28,7 @@ Clone the repository from GitHub first, then download the model weights from Goo
 ```bash
 git clone https://github.com/ShenLab-Genomics/SpliceTransformer.git
 ```
-Download the [model weights](https://drive.google.com/file/d/1u7owrAgX7K1MUiP-6AWnC4T1Jrql2eig/view?usp=drive_link)
+Download the [model weights](https://drive.google.com/file/d/1d8n4vHDSbXqpPc_JFEswLomSUDBgHvno/view?usp=drive_link)
 
 ## 2. Install dependencies
 Please see the **Software Dependencies** section.
