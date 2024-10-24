@@ -1,7 +1,31 @@
+
+
 # SpliceTransformer
 
 The SpliceTransformer (SpTransformer) is a deep learning tool designed to predict tissue-specific splicing sites from pre-mRNA sequences.
 
+# Update log
+
+2024.10.24 Our paper has been published at Nature Communications! [Link](https://www.nature.com/articles/s41467-024-53088-6) 
+**We are continuously maintaining and improving our tool and associated web services. If you have any suggestions or encounter any issues, please do not hesitate to contact us via email or Github issues.**
+
+# Citation
+If you use the code or the data for your research, please cite our paper as follows:
+```
+@article{You2024,
+  author    = {You, Ningyuan and Liu, Chang and Gu, Yuxin and Wang, Rong and Jia, Hanying and Zhang, Tianyun and Jiang, Song and Shi, Jinsong and Chen, Ming and Guan, Min-Xin and Sun, Siqi and Pei, Shanshan and Liu, Zhihong and Shen, Ning},
+  title     = {{SpliceTransformer predicts tissue-specific splicing linked to human diseases}},
+  journal   = {Nature Communications},
+  year      = {2024},
+  volume    = {15},
+  number    = {1},
+  pages     = {9129},
+  month     = {oct},
+  doi       = {10.1038/s41467-024-53088-6},
+  issn      = {2041-1723},
+  url       = {https://doi.org/10.1038/s41467-024-53088-6}
+}
+```
 
 # Installation
 ## 1. Retrive the repository
